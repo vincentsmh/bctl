@@ -1,0 +1,61 @@
+#!/bin/bash
+
+ADJ_VALUE=".1"
+BRIGHTNESS_CONFIG="${HOME}/.bctl"
+DEFAULT_BRIGHTNESS=".8"
+
+function get_current_brightness()
+{
+  if [ -f ${BRIGHTNESS_CONFIG} ]; then
+    cat ${BRIGHTNESS_CONFIG}
+  else
+    echo "${DEFAULT_BRIGHTNESS}" > ${BRIGHTNESS_CONFIG}
+    echo ${DEFAULT_BRIGHTNESS}
+  fi
+}
+
+function get_displays()
+{
+  xrandr -q | grep " connected" | awk '{print $1}'
+}
+
+function new_brightness()
+{
+  if [ "$1" == "up" ]; then
+    if [ "$2" == "1.0" ]; then
+      echo "$2"
+      return 0
+    fi
+
+    local op="+"
+  else
+    local op="-"
+  fi
+
+  echo "${2} ${op} ${ADJ_VALUE}" | bc
+}
+
+function usage()
+{
+  echo -e "Usage: bctrl [up|down]"
+  exit 0
+}
+
+### Main ###
+if [ -z "$1" ]; then
+  usage
+fi
+
+if [ "$1" != "up" ] && [ "$1" != "down" ]; then
+  usage
+fi
+
+cur_brightness=$(get_current_brightness)
+displays="$(get_displays)"
+new_b=$(new_brightness $1 ${cur_brightness})
+
+for display in ${displays}; do
+  xrandr --output ${display} --brightness ${new_b}
+done
+
+echo ${new_b} > ${BRIGHTNESS_CONFIG}
