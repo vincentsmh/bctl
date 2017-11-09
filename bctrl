@@ -40,6 +40,11 @@ function new_brightness()
   echo "${2} ${op} ${ADJ_VALUE}" | bc
 }
 
+function switch_diaplsy()
+{
+  xset -display :0.0 dpms force $1
+}
+
 function usage()
 {
   echo -e "Usage: bctrl [up|down]"
@@ -61,6 +66,10 @@ new_b=$(new_brightness $1 ${cur_brightness})
 
 for display in ${displays}; do
   xrandr --output ${display} --brightness ${new_b}
+
+  if [ "${new_b}" == "0" ]; then
+    switch_diaplsy "off"
+  fi
 done
 
 echo ${new_b} > ${BRIGHTNESS_CONFIG}
