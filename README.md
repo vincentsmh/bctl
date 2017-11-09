@@ -20,7 +20,7 @@ A use case
 ==========
 
 When installed Xubuntu in Macbook Air (3,2), the brightness control function is
-broken. This script can help someone to enable this by add short cut in
+broken. This script can help someone to enable this by adding shortcut in
 keyboard setting as follows.
 
 ![](img/screenshot.png)
