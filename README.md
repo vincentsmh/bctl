@@ -10,10 +10,15 @@ $ ./install.sh
 How to use
 ==========
 
-Increase the brightness with `up` and decrease with `down`.
+Increase the brightness with `up` and decrease with `down`. Or assign a
+brightness between `0` and `10`.
 
 ```bash
-$ bctrl [up|down]
+$ bctrl
+Usage: bctrl [up|down|0-10]
+  + up: brightness up
+  + down: brightness down
+  + 0-10: tune brightness level directly
 ```
 
 A use case

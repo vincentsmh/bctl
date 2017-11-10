@@ -4,6 +4,21 @@ ADJ_VALUE=".1"
 BRIGHTNESS_CONFIG="${HOME}/.bctl"
 DEFAULT_BRIGHTNESS=".8"
 
+function check_args()
+{
+  if [ -z "$1" ]; then
+    usage
+  fi
+
+  if [ "$1" != "up" ] && [ "$1" != "down" ]; then
+    if [ $1 -ge 0 ] && [ $1 -le 10 ]; then
+      return 0
+    fi
+
+    usage
+  fi
+}
+
 function get_current_brightness()
 {
   if [ -f ${BRIGHTNESS_CONFIG} ]; then
@@ -17,6 +32,16 @@ function get_current_brightness()
 function get_displays()
 {
   xrandr -q | grep " connected" | awk '{print $1}'
+}
+
+function is_number()
+{
+  local re='^[0-9]+$'
+  if ! [[ $1 =~ ${re} ]] ; then
+    return 1
+  else
+    return 0
+  fi
 }
 
 function new_brightness()
@@ -47,23 +72,24 @@ function switch_diaplsy()
 
 function usage()
 {
-  echo -e "Usage: bctrl [up|down]"
+  echo -e "Usage: bctrl [up|down|0-10]"
+  echo -e "  + up: brightness up"
+  echo -e "  + down: brightness down"
+  echo -e "  + 0-10: tune brightness level directly"
   exit 0
 }
 
 ### Main ###
-if [ -z "$1" ]; then
-  usage
+check_args $@
+
+if is_number $1; then
+  new_b=$( echo "scale=1; $1 / 10" | bc )
+else
+  cur_brightness=$(get_current_brightness)
+  new_b=$(new_brightness $1 ${cur_brightness})
 fi
 
-if [ "$1" != "up" ] && [ "$1" != "down" ]; then
-  usage
-fi
-
-cur_brightness=$(get_current_brightness)
 displays="$(get_displays)"
-new_b=$(new_brightness $1 ${cur_brightness})
-
 for display in ${displays}; do
   xrandr --output ${display} --brightness ${new_b}
 
